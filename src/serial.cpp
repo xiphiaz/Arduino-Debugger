@@ -81,21 +81,20 @@ void Serial::read(ofSerial& serialPort, unsigned char * bytesReturned, string& m
             serialPort.readBytes(bytesReturned, NUM_BYTES);
             
             // if we find the splitter we put all the buffered messages 
-            //   in the final message, stop listening for more data and 
-            //   notify a possible listener
+            // in the final message, stop listening for more data and 
+            // notify a possible listener
             // else we just keep filling the buffer with incoming bytes. 
             if(*bytesReturned == '\n'){
                 
                 message = messageBuffer;
                 messageBuffer = "";
                 
-                if (message == "done"){
-                    message = "";
-                    stepper0Ready = true;
-                    
-                }else {
-                    cout <<"UNEXPECTED MESSAGE ("<<message<<")\n";
+                messages.push_back(parseMessage(message));
+                if (messages.size()>1000){
+                    messages.erase(messages.begin());
                 }
+                
+                cout << "messages in memory "<<messages.size()<<endl;
             
             }else{
                 if(*bytesReturned != '\r') messageBuffer += *bytesReturned;
@@ -107,3 +106,64 @@ void Serial::read(ofSerial& serialPort, unsigned char * bytesReturned, string& m
         memset(bytesReturned,0,NUM_BYTES);
     }
 }
+
+vector<string> Serial::unwrapDelimited(string input, char leftDelimit, char rightDelimit){
+    
+//    cout << "unwrapDelimited function begins"<<endl;
+    
+    int beginPos = 0;
+    int endPos = 0;
+    vector <string> resultVector;
+    
+    while(1){
+//        cout << "about to search the string for left delimit at position ("<<endPos<<")"<<endl;
+        beginPos = input.find(leftDelimit, endPos);
+        endPos = input.find(rightDelimit, endPos+1);
+        
+        if (beginPos == string::npos||endPos == string::npos){
+            break;
+        }
+//        cout << "beginPos = "<<beginPos<<" endPos = "<<endPos<<endl;
+        int length = (endPos-beginPos)+1;
+//        cout << "length: "<<length<<endl;
+        string result = input.substr(beginPos+1, length-2);
+        
+//        cout << "result = "<<result<<endl;
+        resultVector.push_back(result);
+    }
+    
+    
+    return resultVector;
+
+}
+
+
+message Serial::parseMessage(string rawMessage){
+    
+//    cout << "raw message: "<<rawMessage<<endl;
+    
+    message message;
+    vector<string>timestampVector = unwrapDelimited(rawMessage, '[', ']');
+    if (timestampVector.size()>0){
+        message.timestamp = atoi(timestampVector[0].c_str());
+//        cout << "timestamp is: "<<message.timestamp<<endl;
+    }
+        
+    
+    vector<string>pinValueVector = unwrapDelimited(rawMessage, '{', '}');
+    if (pinValueVector.size()>0){
+        for (int i=0; i<pinValueVector.size(); i++){
+            pinValue pinValue;
+            pinValue.pin = atoi(pinValueVector[i].substr(0, pinValueVector[i].find(':')).c_str());
+            pinValue.value = atoi(pinValueVector[i].substr(pinValueVector[i].find(':')+1, pinValueVector[i].size()).c_str());
+//            cout << "pin is: "<<pinValue.pin<<", value is: "<<pinValue.value<<endl;
+            message.pinValues.push_back(pinValue);
+        }
+    }
+    
+    
+    return message;
+    
+}
+
+

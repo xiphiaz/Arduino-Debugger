@@ -14,6 +14,18 @@
 
 #define NUM_BYTES 1
 
+typedef struct pinValue {
+    int pin;
+    int value;
+}pinValue;
+
+typedef struct message {
+    int timestamp;
+    vector<pinValue>pinValues;
+}message;
+
+
+
 class Serial {
     
     vector<char>buffer;
@@ -36,10 +48,15 @@ public:
     
     string readLine();
     
+    vector<message>messages;
+    
     
     string message0, message1, message2, messageBuffer0, messageBuffer1, messageBuffer2;
     unsigned char bytesReturned0[1], bytesReturned1[1], bytesReturned2[1];
     void read(ofSerial& serialPort, unsigned char * bytesReturned, string& messageBuffer, string& message);
+    
+    message parseMessage(string rawMessage);
+    vector<string> unwrapDelimited(string input, char leftDelimit, char rightDelimit);
     
 };
 

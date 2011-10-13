@@ -21,5 +21,7 @@ class testApp : public ofBaseApp{
 		void gotMessage(ofMessage msg);
     
         Serial serial;
+    
+        void example(message);
 		
 };
