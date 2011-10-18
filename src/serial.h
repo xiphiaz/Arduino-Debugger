@@ -40,15 +40,19 @@ public:
     
     ofSerial serialConnection;
     
-    bool println(string line);
+    int baudRate;
+    void setBaud(int rate);
+    bool serialLocked;
     
-    void setStepper(float angle, float speed);
+    bool println(string line);
     
     void update();
     
     string readLine();
     
     vector<message>messages;
+    
+    void emptyBuffer();
     
     
     string message0, message1, message2, messageBuffer0, messageBuffer1, messageBuffer2;

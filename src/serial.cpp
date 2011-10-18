@@ -21,16 +21,53 @@ Serial::Serial(){ //constructor
 
 void Serial::setupDevices(){
     
+    serialLocked = true;
+    
     serialConnection.enumerateDevices();
     printf("enumerated serialConnection devices\n");
     
-    if(!serialConnection.setup(/*"tty.usbserial-A9007Mbm"*/1, 9600)){
+    serialConnection.setVerbose(true);
+    if(!serialConnection.setup(/*"tty.usbserial-A9007Mbm"*/1, 9600 )){
+        
         printf("Serial setup failed!\n");
     }else{
+        baudRate = 9600; 
         arduinoConnected = true;
+        serialLocked = false;
     }
     
     cout <<"Serial setup complete\n";
+}
+
+void Serial::setBaud(int rate){
+    
+    if (rate!=baudRate){ //do nothing if there is nothing to change
+        
+        serialLocked = true;
+        
+        char buffer [50];
+        sprintf(buffer, "{baud:%d}", rate);
+        println(buffer);
+        
+        serialConnection.close();
+        
+//        emptyBuffer();
+        
+        ofSleepMillis(500); //give arduino a chance to change baud rate
+        
+        serialConnection.flush(true, true);
+        if (!serialConnection.setup(/*"tty.usbserial-A9007Mbm"*/1, rate)){
+            printf("Serial setup failed!\n");
+        }
+        serialConnection.flush(true, true);
+        
+        baudRate = rate;
+        
+        cout << "set baudrate to "<<baudRate<<endl;
+        
+        serialLocked = false;
+    }
+    
 }
 
 bool Serial::println(string line){
@@ -46,24 +83,16 @@ bool Serial::println(string line){
 
 }
 
-void Serial::setStepper(float angle, float speed){
-    
-    char buffer [50];
-    sprintf (buffer, "d%f-s%de", angle+90, (int)speed); //note speed is cast to int for now, will be float eventually. angle has 90 added to it so it can be in the range 0-180
-    //    sprintf (buffer, "$"); //note speed is cast to int for now, will be float eventually
-    println (buffer);
-    
-}
-
 void Serial::update(){
     
-    read(serialConnection, bytesReturned0, messageBuffer0, message0);
+    if (!serialLocked){
+        read(serialConnection, bytesReturned0, messageBuffer0, message0);
+    }
     
+        
 }
 
 string Serial::readLine(){
-    
-    string message = "herp";
     
     read(serialConnection, bytesReturned0, messageBuffer0, message0);
     
@@ -90,11 +119,14 @@ void Serial::read(ofSerial& serialPort, unsigned char * bytesReturned, string& m
                 messageBuffer = "";
                 
                 messages.push_back(parseMessage(message));
-                if (messages.size()>1000){
+                
+                while ((messages[messages.size()-1].timestamp-messages[0].timestamp)>30000000){ //buffer 30 seconds
                     messages.erase(messages.begin());
                 }
                 
-                cout << "messages in memory "<<messages.size()<<endl;
+                cout << "received message: "<<message<<endl;
+                
+//                cout << "messages in memory "<<messages.size()<<endl;
             
             }else{
                 if(*bytesReturned != '\r') messageBuffer += *bytesReturned;
@@ -164,6 +196,12 @@ message Serial::parseMessage(string rawMessage){
     
     return message;
     
+}
+
+void Serial::emptyBuffer(){
+
+    messages.empty();
+
 }
 
 
