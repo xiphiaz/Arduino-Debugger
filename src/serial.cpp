@@ -19,6 +19,44 @@ Serial::Serial(){ //constructor
     
 }
 
+
+int Serial::challengeArduinoForBaud(){
+    
+    cout << "challenging arduino to find it's current baud rate"<<endl;
+    
+    int baudRates [11] = {300, 1200, 2400, 4800, 9600, 14400, 19200, 28800, 38400, 57600, 115200};
+    int testIndex = 0;
+    
+    while (1) {
+        
+        if(serialConnection.setup(1, baudRates[testIndex])){
+            
+            cout << "testing for baud "<<baudRates[testIndex]<<endl;
+            
+            print(serialConnection, "{challenge:baud_check}");
+            ofSleepMillis(100); //give arduino a chance to read and write
+            
+            string returnMessage;
+            unsigned char bytesBuffer[1];
+            readln(serialConnection, bytesBuffer, returnMessage);
+            
+            cout << "readln returned: "<<returnMessage<<endl;
+            
+            if (returnMessage=="{:}"){
+                break;
+            }
+            
+        }
+        
+        testIndex++;
+        
+        if(testIndex>10) return false;
+    }
+           
+   return baudRates[testIndex];
+    
+}
+
 void Serial::setupDevices(){
     
     serialLocked = true;
@@ -27,16 +65,16 @@ void Serial::setupDevices(){
     printf("enumerated serialConnection devices\n");
     
     serialConnection.setVerbose(true);
-    if(!serialConnection.setup(/*"tty.usbserial-A9007Mbm"*/1, 9600 )){
-        
-        printf("Serial setup failed!\n");
-    }else{
-        baudRate = 9600; 
+    if((baudRate = challengeArduinoForBaud())){
         arduinoConnected = true;
         serialLocked = false;
+        cout <<"Serial setup complete\n";
+        
+    }else{
+        printf("Serial setup failed!\n");
     }
     
-    cout <<"Serial setup complete\n";
+    
 }
 
 void Serial::setBaud(int rate){
@@ -45,9 +83,10 @@ void Serial::setBaud(int rate){
         
         serialLocked = true;
         
-        char buffer [50];
-        sprintf(buffer, "{baud:%d}", rate);
-        println(buffer);
+        println("{baud:"+ofToString(rate)+"}");
+        
+        ofSleepMillis(500); //give arduino a chance to recieve data
+        
         
         serialConnection.close();
         
@@ -55,11 +94,10 @@ void Serial::setBaud(int rate){
         
         ofSleepMillis(500); //give arduino a chance to change baud rate
         
-        serialConnection.flush(true, true);
+        
         if (!serialConnection.setup(/*"tty.usbserial-A9007Mbm"*/1, rate)){
             printf("Serial setup failed!\n");
         }
-        serialConnection.flush(true, true);
         
         baudRate = rate;
         
@@ -70,17 +108,21 @@ void Serial::setBaud(int rate){
     
 }
 
-bool Serial::println(string line){
+void Serial::println(string line){
+    
+    print(serialConnection, line);
+
+}
+
+void Serial::print(ofSerial& serialPort, string line){
     
     unsigned char * charLine = new unsigned char[line.size()+1];
     charLine[line.size()]=0;
     memcpy(charLine,line.c_str(),line.size());
-
-    if (arduinoConnected){
-        serialConnection.writeBytes(charLine,line.size());
-        cout <<"output to serialConnection: "<<charLine<<"\n";
-    }
-
+    
+    serialPort.writeBytes(charLine,line.size());
+    cout <<"output to serial: "<<charLine<<"\n";
+    
 }
 
 void Serial::update(){
@@ -92,11 +134,34 @@ void Serial::update(){
         
 }
 
-string Serial::readLine(){
-    
-    read(serialConnection, bytesReturned0, messageBuffer0, message0);
-    
-    return message0;
+string Serial::readln(ofSerial& serialPort, unsigned char * bytesReturned, string& messageBuffer){
+
+    // if we've got new bytes
+    if(serialPort.available() > 0){
+        // we wil keep reading until nothing is left
+        while (serialPort.available() > 0){
+            
+            // we'll put the incoming bytes into bytesReturned
+            serialPort.readBytes(bytesReturned, NUM_BYTES);
+            
+            // if we find the splitter we put all the buffered messages 
+            // in the final message, stop listening for more data and 
+            // notify a possible listener
+            // else we just keep filling the buffer with incoming bytes. 
+            if(*bytesReturned == '\n'){
+                
+                return messageBuffer;
+                
+            }else{
+                if(*bytesReturned != '\r') messageBuffer += *bytesReturned;
+            }
+            //            cout << "  messageBuffer: (" << messageBuffer << ")\n";
+        }
+        
+        // clear the message buffer
+        memset(bytesReturned,0,NUM_BYTES);
+    }
+
 }
 
 void Serial::read(ofSerial& serialPort, unsigned char * bytesReturned, string& messageBuffer, string& message){
@@ -124,7 +189,7 @@ void Serial::read(ofSerial& serialPort, unsigned char * bytesReturned, string& m
                     messages.erase(messages.begin());
                 }
                 
-                cout << "received message: "<<message<<endl;
+//                cout << "received message: "<<message<<endl;
                 
 //                cout << "messages in memory "<<messages.size()<<endl;
             

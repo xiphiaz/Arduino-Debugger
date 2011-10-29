@@ -40,20 +40,21 @@ public:
     
     ofSerial serialConnection;
     
+    int challengeArduinoForBaud();
+    
     int baudRate;
     void setBaud(int rate);
     bool serialLocked;
     
-    bool println(string line);
+    void print(ofSerial& serialPort, string line);
+    void println(string line);
     
     void update();
-    
-    string readLine();
-    
+        
     vector<message>messages;
     
     void emptyBuffer();
-    
+    string readln(ofSerial& serialPort, unsigned char * bytesReturned, string& messageBuffer); //wait for a line to come through
     
     string message0, message1, message2, messageBuffer0, messageBuffer1, messageBuffer2;
     unsigned char bytesReturned0[1], bytesReturned1[1], bytesReturned2[1];

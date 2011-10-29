@@ -3,12 +3,13 @@
 #include "ofMain.h"
 #include "serial.h"
 
-class testApp : public ofBaseApp{
+class arduinoGrapher : public ofBaseApp{
 
 	public:
 		void setup();
 		void update();
 		void draw();
+        void exit();
 
 		void keyPressed  (int key);
 		void keyReleased(int key);
@@ -23,5 +24,7 @@ class testApp : public ofBaseApp{
         Serial serial;
     
         void example(message);
+    
+        void drawGraph(int posX, int posY, int width, int height, float graphScale);
 		
 };
