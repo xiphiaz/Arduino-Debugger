@@ -7,6 +7,8 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		6C4CB6FE1460AB0D004D2BCD /* arduino_grapher_icon.icns in CopyFiles */ = {isa = PBXBuildFile; fileRef = 6C4CB6FB1460AADD004D2BCD /* arduino_grapher_icon.icns */; };
+		6C4CB6FF1460AB0D004D2BCD /* verdana.ttf in CopyFiles */ = {isa = PBXBuildFile; fileRef = 6C4CB6FC1460AADD004D2BCD /* verdana.ttf */; };
 		6CEC004F144530EA00095C76 /* serial.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 6CEC004D144530EA00095C76 /* serial.cpp */; };
 		BBAB23CB13894F3D00AA2426 /* GLUT.framework in CopyFiles */ = {isa = PBXBuildFile; fileRef = BBAB23BE13894E4700AA2426 /* GLUT.framework */; };
 		E4328149138ABC9F0047C5CB /* openFrameworksDebug.a in Frameworks */ = {isa = PBXBuildFile; fileRef = E4328148138ABC890047C5CB /* openFrameworksDebug.a */; };
@@ -45,6 +47,17 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXCopyFilesBuildPhase section */
+		6C4CB6FD1460AB02004D2BCD /* CopyFiles */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 7;
+			files = (
+				6C4CB6FE1460AB0D004D2BCD /* arduino_grapher_icon.icns in CopyFiles */,
+				6C4CB6FF1460AB0D004D2BCD /* verdana.ttf in CopyFiles */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		E4C2427710CC5ABF004149E2 /* CopyFiles */ = {
 			isa = PBXCopyFilesBuildPhase;
 			buildActionMask = 2147483647;
@@ -58,6 +71,10 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		6C4CB6EC1460A9FA004D2BCD /* arduino_grapher_icon.icns */ = {isa = PBXFileReference; lastKnownFileType = image.icns; name = arduino_grapher_icon.icns; path = src/arduino_grapher_icon.icns; sourceTree = "<group>"; };
+		6C4CB6FA1460AADD004D2BCD /* .gitignore */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = .gitignore; sourceTree = "<group>"; };
+		6C4CB6FB1460AADD004D2BCD /* arduino_grapher_icon.icns */ = {isa = PBXFileReference; lastKnownFileType = image.icns; path = arduino_grapher_icon.icns; sourceTree = "<group>"; };
+		6C4CB6FC1460AADD004D2BCD /* verdana.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; name = verdana.ttf; path = src/data/verdana.ttf; sourceTree = "<group>"; };
 		6CEC004D144530EA00095C76 /* serial.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = serial.cpp; sourceTree = "<group>"; };
 		6CEC004E144530EA00095C76 /* serial.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = serial.h; sourceTree = "<group>"; };
 		BBAB23BE13894E4700AA2426 /* GLUT.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = GLUT.framework; path = ../../../libs/glut/lib/osx/GLUT.framework; sourceTree = "<group>"; };
@@ -108,6 +125,16 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		6C4CB6F91460AADD004D2BCD /* data */ = {
+			isa = PBXGroup;
+			children = (
+				6C4CB6FA1460AADD004D2BCD /* .gitignore */,
+				6C4CB6FB1460AADD004D2BCD /* arduino_grapher_icon.icns */,
+			);
+			name = data;
+			path = src/data;
+			sourceTree = "<group>";
+		};
 		BB4B014C10F69532006C3DED /* addons */ = {
 			isa = PBXGroup;
 			children = (
@@ -162,8 +189,11 @@
 		E4B69B4A0A3A1720003C02F2 = {
 			isa = PBXGroup;
 			children = (
+				6C4CB6EC1460A9FA004D2BCD /* arduino_grapher_icon.icns */,
 				E4B6FCAD0C3E899E008CF71C /* openFrameworks-Info.plist */,
 				E4EB6923138AFD0F00A09F29 /* Project.xcconfig */,
+				6C4CB6FC1460AADD004D2BCD /* verdana.ttf */,
+				6C4CB6F91460AADD004D2BCD /* data */,
 				E4B69E1C0A3A1BDC003C02F2 /* src */,
 				E4EEC9E9138DF44700A80321 /* openFrameworks */,
 				BB4B014C10F69532006C3DED /* addons */,
@@ -204,6 +234,7 @@
 				E4B69B590A3A1756003C02F2 /* Frameworks */,
 				E4B6FFFD0C3F9AB9008CF71C /* ShellScript */,
 				E4C2427710CC5ABF004149E2 /* CopyFiles */,
+				6C4CB6FD1460AB02004D2BCD /* CopyFiles */,
 			);
 			buildRules = (
 			);

@@ -23,6 +23,9 @@ class arduinoGrapher : public ofBaseApp{
     
         Serial serial;
     
+        void drawButtons();
+    
+        void drawGui();
         void handleGui();
         void toggleButton(int i);
         
@@ -31,6 +34,11 @@ class arduinoGrapher : public ofBaseApp{
             int color;
         };
     
+        void drawResetButton();
+    
+        void drawBaudChangeButton();
+        void drawBaudGui();
+    
         void setupGraphs();
     
 //        graph graphs[20];
@@ -38,6 +46,19 @@ class arduinoGrapher : public ofBaseApp{
     
         void drawGraph(int posX, int posY, int width, int height, float graphScale);
     
-        void updatePointSelection();
+        struct probe {
+            int timestamp;
+            int x;
+            vector<pinValue>pinValues;
+        };
+    
+        vector<probe> probes;
+    
+        void drawProbeCursor();
+        void drawProbes();
+        void drawProbe(probe probe, float& xPos, float& yPos, int& yVal);
+        void addProbe(int x);
+    
+        ofTrueTypeFont  verdana, verdana20;
 		
 };

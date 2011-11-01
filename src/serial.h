@@ -42,6 +42,8 @@ public:
     
     int challengeArduinoForBaud();
     
+    int baudRates [11];
+    
     int baudRate;
     void setBaud(int rate);
     bool serialLocked;

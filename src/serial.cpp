@@ -9,6 +9,7 @@
 #include "serial.h"
 
 
+
 Serial::Serial(){ //constructor
     
 	cout << "Stepper control class instantiated \n";
@@ -24,7 +25,20 @@ int Serial::challengeArduinoForBaud(){
     
     cout << "challenging arduino to find it's current baud rate"<<endl;
     
-    int baudRates [11] = {300, 1200, 2400, 4800, 9600, 14400, 19200, 28800, 38400, 57600, 115200};
+//    baudRates[11] = {300, 1200, 2400, 4800, 9600, 14400, 19200, 28800, 38400, 57600, 115200};
+    baudRates[0] = 300;
+    baudRates[1] = 1200;
+    baudRates[2] = 2400;
+    baudRates[3] = 4800;
+    baudRates[4] = 9600;
+    baudRates[5] = 14400;
+    baudRates[6] = 19200;
+    baudRates[7] = 28800;
+    baudRates[8] = 38400;
+    baudRates[9] = 57600;
+    baudRates[10] = 115200;
+    
+    
     int testIndex = 0;
     
     while (1) {
@@ -65,8 +79,8 @@ void Serial::setupDevices(){
     printf("enumerated serialConnection devices\n");
     
     serialConnection.setVerbose(true);
-//    if((baudRate = challengeArduinoForBaud())){
-    if (serialConnection.setup(1, 9600)){ //for testing
+    if((baudRate = challengeArduinoForBaud())){
+//    if (serialConnection.setup(1, 9600)){ //for testing
         
         arduinoConnected = true;
         serialLocked = false;
