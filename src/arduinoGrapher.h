@@ -23,7 +23,18 @@ class arduinoGrapher : public ofBaseApp{
     
         Serial serial;
     
-        void example(message);
+        void handleGui();
+        void toggleButton(int i);
+        
+        struct graph {
+            vector<ofPoint>points;
+            int color;
+        };
+    
+        void setupGraphs();
+    
+//        graph graphs[20];
+        vector <graph>graphs;
     
         void drawGraph(int posX, int posY, int width, int height, float graphScale);
 		

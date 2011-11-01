@@ -66,6 +66,8 @@ void Serial::setupDevices(){
     
     serialConnection.setVerbose(true);
     if((baudRate = challengeArduinoForBaud())){
+//    if (serialConnection.setup(1, 9600)){ //for testing
+        
         arduinoConnected = true;
         serialLocked = false;
         cout <<"Serial setup complete\n";
@@ -169,7 +171,11 @@ void Serial::read(ofSerial& serialPort, unsigned char * bytesReturned, string& m
     // if we've got new bytes
     if(serialPort.available() > 0){
         // we wil keep reading until nothing is left
+        
+//        cout << "reading"<<endl;
         while (serialPort.available() > 0){
+            
+//            cout << "port open"<<endl;
             
             // we'll put the incoming bytes into bytesReturned
             serialPort.readBytes(bytesReturned, NUM_BYTES);
@@ -186,7 +192,9 @@ void Serial::read(ofSerial& serialPort, unsigned char * bytesReturned, string& m
                 messages.push_back(parseMessage(message));
                 
                 while ((messages[messages.size()-1].timestamp-messages[0].timestamp)>30000000){ //buffer 30 seconds
-                    messages.erase(messages.begin());
+                    
+                    if (messages.size()>0) messages.erase(messages.begin());
+                    
                 }
                 
 //                cout << "received message: "<<message<<endl;
@@ -253,7 +261,7 @@ message Serial::parseMessage(string rawMessage){
             pinValue pinValue;
             pinValue.pin = atoi(pinValueVector[i].substr(0, pinValueVector[i].find(':')).c_str());
             pinValue.value = atoi(pinValueVector[i].substr(pinValueVector[i].find(':')+1, pinValueVector[i].size()).c_str());
-//            cout << "pin is: "<<pinValue.pin<<", value is: "<<pinValue.value<<endl;
+            cout << "pin is: "<<pinValue.pin<<", value is: "<<pinValue.value<<endl;
             message.pinValues.push_back(pinValue);
         }
     }
