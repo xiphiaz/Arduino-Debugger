@@ -35,7 +35,7 @@ int Serial::challengeArduinoForBaud(){
             
             print(serialConnection, "{challenge:baud_check}");
             ofSleepMillis(100); //give arduino a chance to read and write
-            
+            cout <<"slept"<<endl;
             string returnMessage;
             unsigned char bytesBuffer[1];
             readln(serialConnection, bytesBuffer, returnMessage);
@@ -65,8 +65,8 @@ void Serial::setupDevices(){
     printf("enumerated serialConnection devices\n");
     
     serialConnection.setVerbose(true);
-    if((baudRate = challengeArduinoForBaud())){
-//    if (serialConnection.setup(1, 9600)){ //for testing
+//    if((baudRate = challengeArduinoForBaud())){
+    if (serialConnection.setup(1, 9600)){ //for testing
         
         arduinoConnected = true;
         serialLocked = false;
@@ -261,7 +261,7 @@ message Serial::parseMessage(string rawMessage){
             pinValue pinValue;
             pinValue.pin = atoi(pinValueVector[i].substr(0, pinValueVector[i].find(':')).c_str());
             pinValue.value = atoi(pinValueVector[i].substr(pinValueVector[i].find(':')+1, pinValueVector[i].size()).c_str());
-            cout << "pin is: "<<pinValue.pin<<", value is: "<<pinValue.value<<endl;
+//            cout << "pin is: "<<pinValue.pin<<", value is: "<<pinValue.value<<endl;
             message.pinValues.push_back(pinValue);
         }
     }

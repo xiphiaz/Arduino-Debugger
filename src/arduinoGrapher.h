@@ -34,8 +34,10 @@ class arduinoGrapher : public ofBaseApp{
         void setupGraphs();
     
 //        graph graphs[20];
-        vector <graph>graphs;
+//        vector <graph>graphs;
     
         void drawGraph(int posX, int posY, int width, int height, float graphScale);
+    
+        void updatePointSelection();
 		
 };

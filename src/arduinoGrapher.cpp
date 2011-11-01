@@ -12,9 +12,11 @@ int darkGrey = 0xC3C9C9;
 int black = 0x000000;
 int white = 0xFFFFFF;
 int offBlack = 0x191919;
+int purple = 0xC100E3;
+int yellow = 0xF0D000;
 
-bool pinStatus [20] = {false, false, false, false, false, false, false, false, false, false, false, false, false, false, true, false, false, false, false, false, };
-
+bool pinStatus [20] = {false, false, false, false, false, false, false, false, false, false, false, false, false, false, true, false, false, false, false, false};
+int pinColors[18] = {0xffffff, 0xeeeeee, 0xdddddd, 0xcccccc, 0xbbbbbb, 0xaaaaaa, 0x999999,0x888888,0x777777,0x666666,0x555555,0x444444, white, blue, green, orange, yellow, purple};
 
 struct button {
     int x, y, w, h;
@@ -52,11 +54,7 @@ void drawButtons(){
     
     for (int i=0; i<buttons.size(); i++){
         
-        if(i>13){
-            ofSetHexColor(orange);
-        }else{
-            ofSetHexColor(green);
-        }
+        ofSetHexColor(pinColors[i-2]);
         
         ofRect(buttons[i].x, buttons[i].y, buttons[i].w, buttons[i].h);
         
@@ -129,6 +127,8 @@ void arduinoGrapher::handleGui(){
 //--------------------------------------------------------------
 void arduinoGrapher::setup(){
     
+    ofSetFrameRate(60); //stop hogging cpu cycles
+    
     setupGui();
     setupGraphs();
     
@@ -168,6 +168,16 @@ void arduinoGrapher::update(){
     
 }
 
+void arduinoGrapher::updatePointSelection(){
+    
+    if (!recievingData){ //useless otherwise, and helps free up the cpu from having to parse the incoming packets
+        
+        
+        
+    }
+    
+}
+
 //--------------------------------------------------------------
 void arduinoGrapher::draw(){
     
@@ -175,8 +185,8 @@ void arduinoGrapher::draw(){
     drawGraph(100, 100, 1000, 800, 30);
     drawGui();
     
-    ofSetHexColor(orange);
-    ofCircle(mouseX, mouseY, 10);
+//    ofSetHexColor(orange);
+//    ofCircle(mouseX, mouseY, 10);
     
 }
 
@@ -307,13 +317,12 @@ void arduinoGrapher::dragEvent(ofDragInfo dragInfo){
 
 void arduinoGrapher::setupGraphs(){
     
-    for (int i=0; i<20; i++){
-        
-        graph newGraph;
-        //setup colours
-        newGraph.points.clear();
-        graphs.push_back(newGraph);
-    }
+    ofColor color;
+    color.r = 0;
+    color.g = 0;
+    color.b = 255;
+    
+    
     
 }
 
@@ -325,6 +334,15 @@ void arduinoGrapher::drawGraph(int posX, int posY, int graphWidth, int height, f
     int pinId = 0;
     
     vector<ofPoint>graphPoints;
+    graph graphs[20]; //created every loop ensures it is clear. performance must suck tho
+//    vector<graph>graphs;
+//    
+    for (int i=0; i<20; i++){
+        
+        graph newGraph;
+        //setup colours
+        graphs[i] = newGraph;
+    }
     
     
     if(serial.messages.size()>0){
@@ -340,26 +358,28 @@ void arduinoGrapher::drawGraph(int posX, int posY, int graphWidth, int height, f
 
                 int timestampOffset = serial.messages[serial.messages.size()-1].timestamp-timestamp;
                 
-                //                cout << "timestamp: "<<timestamp<<", first: "<<serial.messages[1].timestamp<<", offset: "<<timestampOffset<<endl;
+                // cout << "timestamp: "<<timestamp<<", first: "<<serial.messages[1].timestamp<<", offset: "<<timestampOffset<<endl;
+//                cout << graphs[i].points.size()<<endl;
+//                /*if (graphs[i].points.size()>0) */graphs[i].points.clear();
+                
+//                cout << graphs[i].points.size()<<endl;
                 
                 for (int j=0; j<serial.messages[i].pinValues.size();j++){
-                    graphs[i].points.clear();
                     
+                    int pin = serial.messages[i].pinValues[j].pin;
                     
                     ofPoint vertex;
                     vertex.x = graphWidth-timestampOffset*xScaling; // 1 pixel per ms
-                    vertex.y = height-((float)serial.messages[i].pinValues[j].value/1023*height);
+                    int value = (pin>13)? serial.messages[i].pinValues[j].value:serial.messages[i].pinValues[j].value*1024;
+                    vertex.y = height-((float)value/1023*height);
 //                    
-//                    
-                    graphs[serial.messages[i].pinValues[j].pin].points.push_back(vertex);
+//                  
                     
-//                    if (j==0){
-//                        ofPoint vertex;
-//                        vertex.x = graphWidth-timestampOffset*xScaling; // 1 pixel per ms
-//                        vertex.y = height-((float)serial.messages[i].pinValues[j].value/1023*height);
-//                        graphPoints.push_back(vertex);
-//                        graphs[0].points.push_back(vertex);
-//                    }
+                    
+                    graphs[pin].points.push_back(vertex);
+//                    cout << "accessing graph # "<<serial.messages[i].pinValues[j].pin<<endl;
+//                    graphs[j].points.push_back(vertex);
+
                     
                 }
                 
@@ -384,7 +404,7 @@ void arduinoGrapher::drawGraph(int posX, int posY, int graphWidth, int height, f
 //        graphPoints.push_back(ofPoint(graphWidth, height));
         
         
-        
+        ofPushMatrix();
         
         ofTranslate(100, 100);
         
@@ -397,23 +417,12 @@ void arduinoGrapher::drawGraph(int posX, int posY, int graphWidth, int height, f
 //        ofEndShape();
         
         glEnable(GL_LINE_SMOOTH);
-//        glLineWidth(1.5);
-        glBegin(GL_LINE_STRIP);
+        glLineWidth(1.5);
         
-//        for (int i=0; i<graphs[0].points.size(); i++) {
-//            glVertex2f(graphPoints[i].x, graphPoints[i].y);
-//            glVertex2f(graphs[0].points[i].x, graphs[0].points[i].y);
-//            
-//        }
-        
-        glEnd();
-        
-        
-        
-        for (int i=0; i<graphs.size(); i++){
+        for (int i=2; i<20; i++){
             if (graphs[i].points.size()>0){
                 
-                ofSetColor(200, 200, i*10+50);
+                ofSetHexColor(pinColors[i-2]);
                 
                 glBegin(GL_LINE_STRIP);
                 
@@ -427,6 +436,10 @@ void arduinoGrapher::drawGraph(int posX, int posY, int graphWidth, int height, f
             }
             
         }
+        
+        
+        ofPopMatrix();
+        
     }
     
 }
